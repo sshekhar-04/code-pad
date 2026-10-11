@@ -1,7 +1,13 @@
 
+
 @extends('layouts.layout')
     @section('body')
         <div class="custom-flash {{ Session::get('class') }} ">{{ Session::get('message') }}</div>
+        @if(!empty($dbError))
+            <div class="custom-flash Danger" style="padding:10px;background:#f8d7da;color:#721c24;margin:10px;">
+                <strong>Dashboard Error:</strong> {{ $dbError }}
+            </div>
+        @endif
     @endsection
     @section('content')
         <div class='container-fluid '>

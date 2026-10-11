@@ -50,19 +50,27 @@ class UserController extends Controller
      */
     public function home(Request $request)
     {
+        $dbError = null;
+        $programList = collect([]);
+
         try {
             if (Auth::guard('student')->check() || Auth::guard('admin')->check()) {
-                $programList = ProgramRecord::all();
+                $programList = ProgramRecord::orderBy('start', 'desc')->get();
             } elseif (Auth::guard('teacher')->check()) {
                 $result = Auth::guard('teacher')->user();
                 $programList = ProgramRecord::where('upload_id', $result->id)->orderBy('start', 'asc')->get();
             } else {
-                return Redirect::to('login')->with(['message' => 'You need to login first' , 'class' => 'Warning']);
+                return Redirect::to('login')->with(['message' => 'You need to login first', 'class' => 'Warning']);
             }
         } catch (\Exception $e) {
-            $programList = collect([]);
+            \Log::error('Dashboard fetch error: ' . $e->getMessage());
+            $dbError = 'DB Error: ' . $e->getMessage();
         }
-        return view('home')->with('message', ['You are logged in','Success'])->with('programList', $programList);
+
+        return view('home')
+            ->with('message', ['You are logged in', 'Success'])
+            ->with('programList', $programList)
+            ->with('dbError', $dbError);
     }
 
 
