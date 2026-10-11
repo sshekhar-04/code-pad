@@ -50,15 +50,17 @@ class UserController extends Controller
      */
     public function home(Request $request)
     {
-        if (Auth::guard('student')->check()) {
-            $programList = ProgramRecord::all();
-        } elseif (Auth::guard('admin')->check()) {
-            $programList = ProgramRecord::all();
-        } elseif (Auth::guard('teacher')->check()) {
-            $result = Auth::guard('teacher')->user();
-            $programList = ProgramRecord::where('upload_id', $result->id)->orderBy('start', 'asc')->get();
-        } else {
-            return Redirect::to('login')->with(['message' => 'You need to login first' , 'class' => 'Warning']);
+        try {
+            if (Auth::guard('student')->check() || Auth::guard('admin')->check()) {
+                $programList = ProgramRecord::all();
+            } elseif (Auth::guard('teacher')->check()) {
+                $result = Auth::guard('teacher')->user();
+                $programList = ProgramRecord::where('upload_id', $result->id)->orderBy('start', 'asc')->get();
+            } else {
+                return Redirect::to('login')->with(['message' => 'You need to login first' , 'class' => 'Warning']);
+            }
+        } catch (\Exception $e) {
+            $programList = collect([]);
         }
         return view('home')->with('message', ['You are logged in','Success'])->with('programList', $programList);
     }

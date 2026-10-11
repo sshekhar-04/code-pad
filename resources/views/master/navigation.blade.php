@@ -1,5 +1,5 @@
 <?php
-
+$name = 'User';
 if(Auth::guard('admin')->check()):
     $name = Auth::guard('admin')->user()->name;
 elseif(Auth::guard('teacher')->check()):
@@ -15,10 +15,8 @@ endif;
   <div class="container">
     <div class="navbar-header">
 
-      <a class="navbar-brand home" href="">
+      <a class="navbar-brand home" href="{{ url('/') }}">
         <img src="{{URL::asset('public/assets/img/logo.png')}}" alt="Universal logo" class="hidden-xs hidden-sm">
-        <!-- <img src="{{URL::asset('public/assets/img/logo-small.png')}}" alt="Universal logo" class="visible-xs visible-sm"><span class="sr-only">Universal - go to homepage</span> -->
-        <!-- <h3>Code-Pad</h3> -->
       </a>
       <div class="navbar-buttons">
         <button type="button" class="navbar-toggle btn-template-main" data-toggle="collapse" data-target="#navigation">
@@ -33,28 +31,9 @@ endif;
 
       <ul class="nav navbar-nav navbar-right">
         @if (!(Auth::guard('student')->check() || Auth::guard('teacher')->check() || Auth::guard('admin')->check()))
-        <!-- <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                                        Login<span class="caret"></span>
-                                </a>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href="{{ url('/login') }}">Student Login</a></li>
-                                    <li><a href="{{ url('/tlogin') }}">Teacher Login</a></li>
-                                </ul>
-                            </li> -->
         <li>
           <a href="{{ url('/login') }}">Login</a>
         </li>
-
-        <!-- <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                                        Register<span class="caret"></span>
-                                </a>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href="{{ url('/register') }}">Student Register</a></li>
-                                    <li><a href="{{ url('/tregister') }}">Teacher Register</a></li>
-                                </ul>
-                            </li> -->
         <li>
           <a href="{{ url('/register') }}">Register</a>
         </li>
@@ -65,40 +44,35 @@ endif;
         </li>
         @if(Auth::guard("student")->check())
         <li><a href="{{ url('/students/profile/edit') }}">Edit Profile</a></li>
-        @else
+        @elseif(Auth::guard('admin')->check())
         <li><a href="{{ url('events/create') }}">Create Event</a></li>
-        @if(Auth::guard('teacher')->check())
-        <li><a href="{{ url('/users/profile/edit') }}">Edit Profile</a></li>
-        @endif @endif @if(Auth::guard('admin')->check())
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
             Show Users <span class="caret"></span>
           </a>
           <ul class="dropdown-menu" role="menu">
-            @if(Auth::guard('admin')->user()->type == 1)
+            @if(isset(Auth::guard('admin')->user()->type) && Auth::guard('admin')->user()->type == 1)
             <li><a href="{{ url('admin/Admin/Show') }}">Show Admin</a></li>
             @endif
-            <li><a href="{{ url('admin/Teacher/Show') }}">Show Teachers</a></li>
             <li><a href="{{ url('admin/Student/Show') }}">Show Students</a></li>
           </ul>
         </li>
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                                        Add Users <span class="caret"></span>
-                                    </a>
+            Add Users <span class="caret"></span>
+          </a>
           <ul class="dropdown-menu" role="menu">
-            @if(Auth::guard('admin')->user()->type == 1)
+            @if(isset(Auth::guard('admin')->user()->type) && Auth::guard('admin')->user()->type == 1)
             <li><a href="{{ url('admin/Admin') }}">Add Admin</a></li>
             @endif
-            <li><a href="{{ url('admin/Teacher') }}">Add Teachers</a></li>
             <li><a href="{{ url('admin/Student') }}">Add Students</a></li>
           </ul>
         </li>
         @endif
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                                        {{ $name}} <span class="caret"></span>
-                                    </a>
+            {{ $name }} <span class="caret"></span>
+          </a>
 
           <ul class="dropdown-menu" role="menu">
             <li><a href="{{ url('/logout') }}"><i class="fa fa-btn fa-sign-out"></i>Logout</a></li>
