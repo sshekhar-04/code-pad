@@ -31,7 +31,7 @@ WORKDIR /var/www/html
 COPY . /var/www/html
 
 # Install dependencies and build optimized autoloader
-RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --ignore-platform-reqs
+RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --ignore-platform-reqs --no-scripts
 
 # Set directory permissions for Laravel storage and cache
 RUN chmod +x /var/www/html/docker-entrypoint.sh \
