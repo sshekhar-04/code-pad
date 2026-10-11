@@ -35,4 +35,13 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    'code_execution' => [
+        'driver' => env('CODE_EXECUTION_DRIVER', 'piston'),
+        'piston_url' => env('PISTON_API_URL', 'https://emkc.org/api/v2/piston/execute'),
+        'judge0_url' => env('JUDGE0_API_URL', 'https://ce.judge0.com'),
+        'judge0_api_key' => env('JUDGE0_API_KEY', null),
+        'hackerearth_secret' => env('HACKEREARTH_CLIENT_SECRET', null),
+        'timeout' => env('CODE_EXECUTION_TIMEOUT', 15),
+    ],
+
 ];

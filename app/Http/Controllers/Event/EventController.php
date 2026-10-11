@@ -21,6 +21,7 @@ use App\ProgramDetails;
 use App\Teacher;
 use App\Admin;
 use Illuminate\Support\MessageBag;
+use App\Helpers\SecurityHelper;
 
 class EventController extends Controller
 {
@@ -116,8 +117,8 @@ class EventController extends Controller
             $rec->name = $record['name'];
             $rec->code = $record['code'];
             $rec->description = $record['description'];
-            $rec->starttime = serialize($eventStart);
-            $rec->endtime = serialize($eventEnd);
+            $rec->starttime = SecurityHelper::safeEncode($eventStart);
+            $rec->endtime = SecurityHelper::safeEncode($eventEnd);
             $rec->start = $start;
             $rec->end = $end;
             $rec->uploaded_by = $record['uploaded_by'];
@@ -181,7 +182,7 @@ class EventController extends Controller
 
             Session::put('record_id', $result->id);
             $start = $result['start'];
-            $end = unserialize($result['endtime']);
+            $end = SecurityHelper::safeDecode($result['endtime']);
 
             $end = $this->dateConversion(
                 $end['enddate']
@@ -225,8 +226,8 @@ class EventController extends Controller
     public function edit($id)
     {
         $result = ProgramRecord::find(Session::get('record_id'));
-        $start = unserialize($result['starttime']);
-        $end = unserialize($result['endtime']);
+        $start = SecurityHelper::safeDecode($result['starttime']);
+        $end = SecurityHelper::safeDecode($result['endtime']);
         $result['startdate'] = $start['startdate'];
         $result['starttime'] = $start['starttime'];
         $result['enddate'] = $end['enddate'];
@@ -289,8 +290,8 @@ class EventController extends Controller
             $rec->name=$record['name'];
             $rec->description=$record['description'];
             $rec->instructions=$record['instructions'];
-            $rec->starttime=serialize($eventStart);
-            $rec->endtime=serialize($eventEnd);
+            $rec->starttime=SecurityHelper::safeEncode($eventStart);
+            $rec->endtime=SecurityHelper::safeEncode($eventEnd);
             $rec->start=$start;
             $rec->end=$end;
             if ($rec->save()) {

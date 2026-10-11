@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\MessageBag;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use GuzzleHttp\Client;
+use App\Services\CodeExecutionService;
+use App\Helpers\SecurityHelper;
 
 class ProgramController extends Controller
 {
@@ -29,36 +31,16 @@ class ProgramController extends Controller
         $this->validate(
             $request,
             [
-            'program' => 'required|',
+            'program' => 'required',
             ]
         );
 
-        $output = Input::all();
-        // return $output;
-        $output = strval($output['program']);
-        // return var_dump($output);
-        $client = new Client();
-        $res = $client->request(
-            'POST', 'http://api.hackerearth.com/v3/code/compile/',
-            [
-            'form_params' =>
-                [
-                'client_secret' => '856a3e481618e44697e683598ce8e99ee71c5fad',
-                'async' => 0,
-                'source'=> $output,
-                'lang'=> "C",
-                'time_limit'=> 5,
-                'memory_limit'=> 262144,
-                ]
-            ]
-        );
-        // echo $res->getStatusCode();
+        $source = strval($request->input('program'));
+        $lang = $request->input('lang', 'c');
 
-         $result = $res->getBody();
-        // dd($result);
-         $result =  json_decode($result, true);
-         // return $result;
-        // $output = $result;
+        $executor = new CodeExecutionService();
+        $result = $executor->compile($source, $lang);
+
         return Redirect::back()->withInput()->with('res', $result);
     }
 
@@ -70,11 +52,16 @@ class ProgramController extends Controller
         $this->validate(
             $request,
             [
-            'program' => 'required|',
+            'program' => 'required',
             ]
         );
 
-        $record_id = ProgramRecord::where('code', $code)->first()->id; // Record Id
+        $record = ProgramRecord::where('code', $code)->first();
+        if (!$record) {
+            return Redirect::back()->withErrors(['Record not found']);
+        }
+        $record_id = $record->id;
+
         $program_details = ProgramDetails::where(
             [
             [
@@ -84,42 +71,34 @@ class ProgramController extends Controller
             'id',$id
             ]
             ]
-        )->first(); // Getting program details
+        )->first();
+
+        if (!$program_details) {
+            return Redirect::back()->withErrors(['Problem not found']);
+        }
 
         $inp = strip_tags($program_details['testcases_input']); //Getting Input
         $oup = strip_tags($program_details['testcases_output']); //Getting Output
 
         $coded = Input::all(); // Getting user input
         $output = strval($coded['program']); // Getting program
+        $lang = isset($coded['lang']) ? $coded['lang'] : 'c';
+
         $input = $inp;
-        if ($coded['input'] != "") {
-            if ($coded['name'] == "true") {
+        if (isset($coded['input']) && $coded['input'] != "") {
+            if (isset($coded['name']) && $coded['name'] == "true") {
                 $input = $coded['input'];
             }
         }
 
-        $client = new Client(); // API
-        $res = $client->request(
-            'POST', 'http://api.hackerearth.com/v3/code/run/',
-            [
-            'form_params' =>
-                [
-                'client_secret' => '856a3e481618e44697e683598ce8e99ee71c5fad',
-                'async' => 0,
-                'source'=> $output,
-                'input' => $input,
-                'lang'=> "C",
-                'time_limit'=> 5,
-                'memory_limit'=> 262144,
-                ]
-            ]
-        );
+        $executor = new CodeExecutionService();
+        $result = $executor->execute($output, $input, $lang);
 
-        $result = $res->getBody(); // Fetching API result
-
-        $result =  json_decode($result, true);
         $result['input'] = $input;
         $result['expected_output'] = $oup;
+
+        $attempt = [];
+        $event = null;
         if (Auth::guard('student')->check()) {
             $event = Result::where(
                 [
@@ -131,29 +110,35 @@ class ProgramController extends Controller
                 ]
                 ]
             )->first();
-            $attempt = unserialize($event['attempt']);
+
+            if ($event) {
+                $attempt = SecurityHelper::safeDecode($event['attempt']);
+            }
         }
+
         if ($result['compile_status'] == 'OK') {
-            $output = $result['run_status']['output'];
-            $result['output'] = $output;
-            $result['output_html'] = strip_tags($result['run_status']['output_html']);
-            if ($result['expected_output'] == $result['output_html'] && Auth::guard('student')->check()) {
+            $cleanExpected = trim(str_replace("\r\n", "\n", (string)$result['expected_output']));
+            $cleanActual = trim(str_replace("\r\n", "\n", (string)$result['output_html']));
 
-                if ($attempt['marks-'.$id] != $program_details['marks'] ) {
+            if ($cleanExpected === $cleanActual && Auth::guard('student')->check() && $event) {
+                $marksKey = 'marks-' . $id;
+                $currentMarks = isset($attempt[$marksKey]) ? (int)$attempt[$marksKey] : 0;
+                $targetMarks = (int)$program_details['marks'];
 
-                    $event->score = $event->score - $attempt['marks-' . $id] + $program_details['marks'];
-                    $attempt['marks-' . $id] = $program_details['marks'];
+                if ($currentMarks != $targetMarks) {
+                    $event->score = $event->score - $currentMarks + $targetMarks;
+                    $attempt[$marksKey] = $targetMarks;
                     $attempt['done-' . $id] = 1;
                 }
-                $attempt['program-id' . $id] = $attempt['program-id' . $id] + 1;
 
-                $event->attempt = serialize($attempt);
+                $attemptCountKey = 'program-id' . $id;
+                $attempt[$attemptCountKey] = (isset($attempt[$attemptCountKey]) ? (int)$attempt[$attemptCountKey] : 0) + 1;
+
+                $event->attempt = SecurityHelper::safeEncode($attempt);
                 $event->save();
             }
         }
-        // return Auth::guard('student')->user();
 
-         // return $result;
         return Redirect::back()->withInput()->with('out', $result);
     }
 

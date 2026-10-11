@@ -16,10 +16,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        $studentPassword = env('SEED_STUDENT_PASSWORD', 'StudentSecure@CodePad2026!');
+        $teacherPassword = env('SEED_TEACHER_PASSWORD', 'TeacherSecure@CodePad2026!');
+        $adminPassword   = env('SEED_ADMIN_PASSWORD', 'AdminSecure@CodePad2026!');
+
     	$student = new Student;
     	$student->name = "Student";
     	$student->admision_no = "15cse075";
-    	$student->password = Hash::make('helloworld');
+    	$student->password = Hash::make($studentPassword);
     	if($student->save())
         {
             $result=Student::where('admision_no','15cse075')->get();
@@ -35,7 +39,7 @@ class DatabaseSeeder extends Seeder
     	$teacher = new Teacher;
     	$teacher->name = "Teacher";
     	$teacher->email = "teacher@jssaten.com";
-    	$teacher->password = Hash::make('helloworld');
+    	$teacher->password = Hash::make($teacherPassword);
     	if($teacher->save())
         {
             $result=Teacher::where('email', 'teacher@jssaten.com')->get();
@@ -50,7 +54,7 @@ class DatabaseSeeder extends Seeder
         $admin = new Admin;
         $admin->name = "Admin";
         $admin->email = "admin@admin.com";
-        $admin->password = Hash::make('helloworld');
+        $admin->password = Hash::make($adminPassword);
         $admin->type='1';
         $admin->save();
 

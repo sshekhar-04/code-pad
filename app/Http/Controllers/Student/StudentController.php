@@ -23,6 +23,7 @@ use Session;
 use Auth;
 use Redirect;
 use App\ProgramDetails;
+use App\Helpers\SecurityHelper;
 use App\ProgramRecord;
 use App\Student;
 use App\StudentDetails;
@@ -251,7 +252,7 @@ class StudentController extends Controller
         if ($result) {
 
             Session::put('record_id', $result->id);
-            $record = unserialize($result['endtime']);
+            $record = SecurityHelper::safeDecode($result['endtime']);
             $end = $this->dateConversion(
                 $record['enddate']
             ) . $this->timeConversion(
@@ -354,7 +355,7 @@ class StudentController extends Controller
 
         if ($result) {
 
-            $record = unserialize($result['endtime']);
+            $record = SecurityHelper::safeDecode($result['endtime']);
             $idd = Auth::guard('student')->user()->id;
             date_default_timezone_set('Asia/Kolkata');
             $time = date("YmdHi", time());
@@ -385,7 +386,7 @@ class StudentController extends Controller
                     $prg['marks-' . $key->id] = 0;
                     $prg['done-' . $key->id] = 0;
                 }
-                $res->attempt = serialize($prg);
+                $res->attempt = SecurityHelper::safeEncode($prg);
                 $res->record_id = $record_id;
                 $res->save();
             }

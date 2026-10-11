@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: codepad
+    runtime: docker
+    plan: free
+    region: oregon
+    healthCheckPath: /
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        generateValue: true
+      - key: RUN_MIGRATIONS
+        value: "true"
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DATABASE_URL
+        fromDatabase:
+          name: codepad-db
+          property: connectionString
+      - key: CODE_EXECUTION_DRIVER
+        value: piston
+      - key: PISTON_API_URL
+        value: https://emkc.org/api/v2/piston/execute
+      - key: SEED_ADMIN_PASSWORD
+        generateValue: true
+      - key: SEED_TEACHER_PASSWORD
+        generateValue: true
+      - key: SEED_STUDENT_PASSWORD
+        generateValue: true
+
+databases:
+  - name: codepad-db
+    plan: free
+    region: oregon
+    databaseName: compiler
+    user: codepad_user

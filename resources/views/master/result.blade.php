@@ -21,7 +21,7 @@
         <strong>Memory(KiB)</strong> <br>{{ isset(Session::get('out')['run_status']['memory_used']) ? Session::get('out')['run_status']['memory_used'] : 'Undefined'}}
       </p>
       <p class="col-sm-4">
-        <strong>Language</strong> <br> C
+        <strong>Language</strong> <br> {{ isset(Session::get('out')['lang']) ? Session::get('out')['lang'] : 'C' }}
       </p>
     </div>
   </div>

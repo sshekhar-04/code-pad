@@ -54,11 +54,11 @@ return [
 
         'mysql' => [
             'driver' => 'mysql',
-            'host' => env('DB_HOST_SQL', 'localhost'),
-            'port' => env('DB_PORT_SQL', '3306'),
-            'database' => env('DB_DATABASE_SQL', 'compiler'),
-            'username' => env('DB_USERNAME_SQL', 'root'),
-            'password' => env('DB_PASSWORD_SQL', ''),
+            'host' => env('DATABASE_URL') && parse_url(env('DATABASE_URL'), PHP_URL_HOST) ? parse_url(env('DATABASE_URL'), PHP_URL_HOST) : env('DB_HOST_SQL', env('DB_HOST', 'localhost')),
+            'port' => env('DATABASE_URL') && parse_url(env('DATABASE_URL'), PHP_URL_PORT) ? parse_url(env('DATABASE_URL'), PHP_URL_PORT) : env('DB_PORT_SQL', env('DB_PORT', '3306')),
+            'database' => env('DATABASE_URL') && parse_url(env('DATABASE_URL'), PHP_URL_PATH) ? ltrim(parse_url(env('DATABASE_URL'), PHP_URL_PATH), '/') : env('DB_DATABASE_SQL', env('DB_DATABASE', 'compiler')),
+            'username' => env('DATABASE_URL') && parse_url(env('DATABASE_URL'), PHP_URL_USER) ? parse_url(env('DATABASE_URL'), PHP_URL_USER) : env('DB_USERNAME_SQL', env('DB_USERNAME', 'root')),
+            'password' => env('DATABASE_URL') && parse_url(env('DATABASE_URL'), PHP_URL_PASS) ? parse_url(env('DATABASE_URL'), PHP_URL_PASS) : env('DB_PASSWORD_SQL', env('DB_PASSWORD', '')),
             'charset' => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix' => '',
@@ -68,11 +68,11 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'host' => env('DB_HOST_PSQL', 'localhost'),
-            'port' => env('DB_PORT_PSQL', '5432'),
-            'database' => env('DB_DATABASE_PSQL', 'compiler'),
-            'username' => env('DB_USERNAME_PSQL', 'postgres'),
-            'password' => env('DB_PASSWORD_PSQL', 'postgres'),
+            'host' => env('DATABASE_URL') && parse_url(env('DATABASE_URL'), PHP_URL_HOST) ? parse_url(env('DATABASE_URL'), PHP_URL_HOST) : env('DB_HOST_PSQL', env('DB_HOST', 'localhost')),
+            'port' => env('DATABASE_URL') && parse_url(env('DATABASE_URL'), PHP_URL_PORT) ? parse_url(env('DATABASE_URL'), PHP_URL_PORT) : env('DB_PORT_PSQL', env('DB_PORT', '5432')),
+            'database' => env('DATABASE_URL') && parse_url(env('DATABASE_URL'), PHP_URL_PATH) ? ltrim(parse_url(env('DATABASE_URL'), PHP_URL_PATH), '/') : env('DB_DATABASE_PSQL', env('DB_DATABASE', 'compiler')),
+            'username' => env('DATABASE_URL') && parse_url(env('DATABASE_URL'), PHP_URL_USER) ? parse_url(env('DATABASE_URL'), PHP_URL_USER) : env('DB_USERNAME_PSQL', env('DB_USERNAME', 'postgres')),
+            'password' => env('DATABASE_URL') && parse_url(env('DATABASE_URL'), PHP_URL_PASS) ? parse_url(env('DATABASE_URL'), PHP_URL_PASS) : env('DB_PASSWORD_PSQL', env('DB_PASSWORD', 'postgres')),
             'charset' => 'utf8',
             'prefix' => '',
             'schema' => 'public',

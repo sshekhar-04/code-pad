@@ -21,7 +21,7 @@
         <strong>Memory(KiB)</strong> <br> 92
       </p> -->
       <p class="col-sm-4">
-        <strong>Language</strong> <br> C
+        <strong>Language</strong> <br> {{ isset(Session::get('res')['lang']) ? Session::get('res')['lang'] : 'C' }}
       </p>
     </div>
   </div>

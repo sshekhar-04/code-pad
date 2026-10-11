@@ -27,7 +27,7 @@ endif;
 		,language: "en"
 		,syntax: "c"
 		,toolbar: "search, go_to_line, |, fullscreen,|, undo, redo, |, select_font, |, syntax_selection, |, change_smooth_selection, highlight, reset_highlight, |, help"
-		,syntax_selection_allow: "c"
+		,syntax_selection_allow: "c, cpp, python, js, php"
 	});
 
 	function clr()
@@ -98,6 +98,20 @@ endif;
                     <form class="form-horizontal" role="form" method="POST" action="">
                         {{ csrf_field() }}
 
+
+                        <div class="form-group">
+                            <div class="col-md-10 col-md-offset-1">
+                                <label for="lang" style="margin-bottom: 5px;">Select Language:</label>
+                                <select name="lang" id="lang" class="form-control" style="width: auto; display: inline-block; margin-left: 10px;">
+                                    <option value="c" {{ old('lang', 'c') == 'c' ? 'selected' : '' }}>C (GCC)</option>
+                                    <option value="cpp" {{ old('lang') == 'cpp' ? 'selected' : '' }}>C++ (G++)</option>
+                                    <option value="python" {{ old('lang') == 'python' ? 'selected' : '' }}>Python 3</option>
+                                    <option value="java" {{ old('lang') == 'java' ? 'selected' : '' }}>Java</option>
+                                    <option value="javascript" {{ old('lang') == 'javascript' ? 'selected' : '' }}>JavaScript (Node.js)</option>
+                                    <option value="php" {{ old('lang') == 'php' ? 'selected' : '' }}>PHP</option>
+                                </select>
+                            </div>
+                        </div>
 
                         <div class="form-group{{ $errors->has('program') ? ' has-error' : '' }}">
 

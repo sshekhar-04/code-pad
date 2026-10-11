@@ -1,0 +1,52 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_DATABASE: compiler
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: mbstring, pdo, pdo_mysql, gd
+          coverage: none
+
+      - name: Setup Environment
+        run: |
+          cp .env.example .env
+          sed -i 's/DB_DATABASE_SQL=compiler/DB_DATABASE_SQL=compiler/g' .env
+          sed -i 's/DB_USERNAME_SQL=root/DB_USERNAME_SQL=root/g' .env
+          sed -i 's/DB_PASSWORD_SQL=root/DB_PASSWORD_SQL=root/g' .env
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Install Dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest --ignore-platform-reqs
+
+      - name: Generate App Key
+        run: php artisan key:generate
+
+      - name: Test Docker Build
+        run: |
+          docker build -t codepad:test .
