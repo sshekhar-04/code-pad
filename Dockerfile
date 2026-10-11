@@ -13,25 +13,37 @@ RUN sed -i '/bullseye-security/d' /etc/apt/sources.list \
     unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions required by Laravel
+# Install PHP extensions required by Laravel & PostgreSQL
 RUN docker-php-ext-install pdo pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd
 
-# Configure Apache DocumentRoot to Laravel's public directory
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
-RUN a2enmod rewrite
+# Configure Apache
+RUN a2enmod rewrite \
+    && echo "ServerName localhost" >> /etc/apache2/apache2.conf \
+    && sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
 
 # Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+ENV COMPOSER_ALLOW_SUPERUSER=1
+COPY --from=composer:2.2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copy application files
+# Copy composer files and install dependencies
+COPY composer.json composer.lock* /var/www/html/
+RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-scripts --no-interaction --ignore-platform-reqs
+
+# Copy full application
 COPY . /var/www/html
+
+# Generate optimized autoload classmap with application classes
+RUN composer dump-autoload --optimize --no-dev --ignore-platform-reqs
 
 # Set directory permissions for Laravel storage and cache
 RUN chmod +x /var/www/html/docker-entrypoint.sh \
+    && mkdir -p /var/www/html/storage/framework/cache \
+    && mkdir -p /var/www/html/storage/framework/sessions \
+    && mkdir -p /var/www/html/storage/framework/views \
+    && mkdir -p /var/www/html/storage/logs \
+    && mkdir -p /var/www/html/bootstrap/cache \
     && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
