@@ -19,21 +19,21 @@
                             <div class="panel panel-default text-center" id="panel">
                                 <div class="panel-heading text-center">
                                     <h3>CodePad <small>logo</small></h3>
-                                    <p id="typein">Type in your Admission No. and Password</p>
+                                    <p id="typein">Type in your Roll Number and Password</p>
                                 </div>
                                 <div class="panel-body text-center">
 
                                     <form class="form-horizontal" role="form" method="POST" action="{{ url('/student/login') }}">
                                             {{ csrf_field() }}
 
-                                        <div class="form-group{{ $errors->has('admision_no') ? ' has-error' : '' }}">
+                                        <div class="form-group{{ $errors->has('roll_number') ? ' has-error' : '' }}">
 
                                             <div class="col-sm-10 col-sm-push-1">
-                                                <input id="admision_no" type="admision_no" class="form-control" name="admision_no" value="{{ old('admision_no') }}" placeholder="Admission Number" >
+                                                <input id="roll_number" type="text" class="form-control" name="roll_number" value="{{ old('roll_number') }}" placeholder="Roll Number" required>
 
-                                                @if ($errors->has('admision_no'))
+                                                @if ($errors->has('roll_number'))
                                                     <span class="help-block">
-                                                        <strong>{{ $errors->first('admision_no') }}</strong>
+                                                        <strong>{{ $errors->first('roll_number') }}</strong>
                                                     </span>
                                                 @endif
                                             </div>
@@ -42,7 +42,7 @@
                                         <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
 
                                             <div class="col-sm-10 col-sm-push-1">
-                                                <input id="password" type="password" class="form-control" name="password" placeholder="Password">
+                                                <input id="password" type="password" class="form-control" name="password" placeholder="Password" required>
 
                                                 @if ($errors->has('password'))
                                                     <span class="help-block">
@@ -69,6 +69,8 @@
                                                 </button>
 
                                                 <a class="btn btn-link" href="{{ url('/password/reset') }}">Forgot Password?</a>
+                                                <br>
+                                                <a class="btn btn-link" href="{{ url('/register') }}">Don't have an account? Register</a>
                                             </div>
                                         </div>
                                     </form>

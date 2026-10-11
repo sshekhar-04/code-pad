@@ -92,7 +92,9 @@ class StudentController extends Controller
         $this->validate(
             $request, [
             'name' => 'required|max:255',
-            'admision_no' => 'required|max:255|unique:student',
+            'roll_number' => 'required|max:255|unique:student,roll_number',
+            'admision_no' => 'required|max:255|unique:student,admision_no',
+            'year' => 'required|max:50',
             'password' => 'required|min:6|confirmed',
             ]
         );
@@ -101,16 +103,15 @@ class StudentController extends Controller
 
         $student = new Student;
         $student->name = $sregister['name'];
+        $student->roll_number = $sregister['roll_number'];
         $student->admision_no = $sregister['admision_no'];
         $student->password =  Hash::make($sregister['password']);
         if($student->save()) {
-            $result=Student::where('admision_no', $sregister['admision_no'])->get();
-            foreach ($result as $row) {
-                $id=$row->id;
-            }
+            $id = $student->id;
 
             $student_details= new StudentDetails;
             $student_details->student_id = $id;
+            $student_details->year = $sregister['year'];
             $student_details->save();
 
             Auth::guard('student')->loginUsingId($id);
@@ -221,15 +222,16 @@ class StudentController extends Controller
     {
         $this->validate(
             $request, [
-            'admision_no' => 'required|max:255|',
-            'password' => 'required|',
+            'roll_number' => 'required|max:255',
+            'password' => 'required',
             ]
         );
 
         $slogin=Input::all();
 
-
-        if(Auth::guard('student')->attempt(['admision_no' => $slogin['admision_no'], 'password' => $slogin['password']])) {
+        if(Auth::guard('student')->attempt(['roll_number' => $slogin['roll_number'], 'password' => $slogin['password']], $request->has('remember'))) {
+            return Redirect::to('/home')->with(['message' => 'You are logged in' , 'class' => 'Success']);
+        } elseif(Auth::guard('student')->attempt(['admision_no' => $slogin['roll_number'], 'password' => $slogin['password']], $request->has('remember'))) {
             return Redirect::to('/home')->with(['message' => 'You are logged in' , 'class' => 'Success']);
         }
 
