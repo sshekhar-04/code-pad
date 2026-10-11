@@ -20,43 +20,50 @@ class DatabaseSeeder extends Seeder
         $teacherPassword = env('SEED_TEACHER_PASSWORD', 'TeacherSecure@CodePad2026!');
         $adminPassword   = env('SEED_ADMIN_PASSWORD', 'AdminSecure@CodePad2026!');
 
-    	$student = new Student;
-    	$student->name = "Student";
-    	$student->admision_no = "15cse075";
-    	$student->password = Hash::make($studentPassword);
-    	if($student->save())
-        {
-            $result=Student::where('admision_no','15cse075')->get();
-            foreach ($result as $row) {
-                $id=$row->id;
-            }
+        if (!Student::where('admision_no', '15cse075')->first()) {
+            $student = new Student;
+            $student->name = "Student";
+            $student->admision_no = "15cse075";
+            $student->password = Hash::make($studentPassword);
+            if($student->save())
+            {
+                $result=Student::where('admision_no','15cse075')->get();
+                foreach ($result as $row) {
+                    $id=$row->id;
+                }
 
-            $student_details= new StudentDetails;
-            $student_details->student_id = $id;
-            $student_details->save();
+                $student_details= new StudentDetails;
+                $student_details->student_id = $id;
+                $student_details->save();
+            }
         }
 
-    	$teacher = new Teacher;
-    	$teacher->name = "Teacher";
-    	$teacher->email = "teacher@jssaten.com";
-    	$teacher->password = Hash::make($teacherPassword);
-    	if($teacher->save())
-        {
-            $result=Teacher::where('email', 'teacher@jssaten.com')->get();
-            foreach ($result as $row) {
-                $id=$row->id;
-            }
+        if (!Teacher::where('email', 'teacher@jssaten.com')->first()) {
+            $teacher = new Teacher;
+            $teacher->name = "Teacher";
+            $teacher->email = "teacher@jssaten.com";
+            $teacher->password = Hash::make($teacherPassword);
+            if($teacher->save())
+            {
+                $result=Teacher::where('email', 'teacher@jssaten.com')->get();
+                foreach ($result as $row) {
+                    $id=$row->id;
+                }
 
-            $teacher_details= new TeacherDetails;
-            $teacher_details->teacher_id = $id;
-            $teacher_details->save();
+                $teacher_details= new TeacherDetails;
+                $teacher_details->teacher_id = $id;
+                $teacher_details->save();
+            }
         }
-        $admin = new Admin;
-        $admin->name = "Admin";
-        $admin->email = "admin@admin.com";
-        $admin->password = Hash::make($adminPassword);
-        $admin->type='1';
-        $admin->save();
+
+        if (!Admin::where('email', 'admin@admin.com')->first()) {
+            $admin = new Admin;
+            $admin->name = "Admin";
+            $admin->email = "admin@admin.com";
+            $admin->password = Hash::make($adminPassword);
+            $admin->type='1';
+            $admin->save();
+        }
 
 
         // $this->call(UsersTableSeeder::class);

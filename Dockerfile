@@ -27,15 +27,11 @@ COPY --from=composer:2.2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copy composer files and install dependencies
-COPY composer.json composer.lock* /var/www/html/
-RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-scripts --no-interaction --ignore-platform-reqs
-
-# Copy full application
+# Copy the full application first so database/ and app/ exist for composer autoloader
 COPY . /var/www/html
 
-# Generate optimized autoload classmap with application classes
-RUN composer dump-autoload --optimize --no-dev --ignore-platform-reqs
+# Install dependencies and build optimized autoloader
+RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --ignore-platform-reqs
 
 # Set directory permissions for Laravel storage and cache
 RUN chmod +x /var/www/html/docker-entrypoint.sh \

@@ -25,21 +25,22 @@ if [ ! -f /var/www/html/.env ]; then
     fi
 fi
 
-# Ensure vendor autoloader exists
-if [ ! -f "/var/www/html/vendor/autoload.php" ]; then
-    echo "vendor/autoload.php not found. Running composer install..."
-    composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --ignore-platform-reqs || true
-fi
-
 # Generate application key if not set
 if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "SomeRandomString" ]; then
     php artisan key:generate --force || true
 fi
 
-# Run migrations if RUN_MIGRATIONS is set to true
-if [ "$RUN_MIGRATIONS" = "true" ]; then
-    echo "Running database migrations..."
-    php artisan migrate --force || true
-fi
+# Automatically run database migrations on container start
+echo "Running database migrations..."
+php artisan migrate --force || true
+
+# Automatically run database seeder on container start
+echo "Running database seeder..."
+php artisan db:seed --force || true
+
+# Clear cache to guarantee latest routes, views, config
+php artisan config:clear || true
+php artisan route:clear || true
+php artisan view:clear || true
 
 exec "$@"
