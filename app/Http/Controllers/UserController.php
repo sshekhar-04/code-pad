@@ -100,8 +100,7 @@ class UserController extends Controller
          //Get Input
         $login=Input::all();
         // return $login;
-        if(Auth::guard('admin')->attempt(['email' => $login['email'], 'password' => $login['password']])) {
-            // return $login;
+        if(Auth::guard('admin')->attempt(['email' => $login['email'], 'password' => $login['password']], $request->has('remember'))) {
             return Redirect::to('/home')->with(['message' => 'You are logged in' , 'class' => 'Success']);
         }
         $errors=new MessageBag(['password' => ['Password Invalid']]);
