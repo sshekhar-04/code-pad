@@ -333,7 +333,10 @@ class EventController extends Controller
     {
         if ($id == Session::get('record_id')) {
             $del = ProgramRecord::find($id);
-            $del->delete();
+            if ($del) {
+                $del->deleted_at = date('Y-m-d H:i:s');
+                $del->save();
+            }
             return Redirect::to('home')->with(
                 [
                 'message' => 'Event is successfully deleted',

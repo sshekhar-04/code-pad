@@ -55,16 +55,16 @@ class UserController extends Controller
 
         try {
             if (Auth::guard('student')->check() || Auth::guard('admin')->check()) {
-                $programList = ProgramRecord::orderBy('start', 'desc')->get();
+                $programList = ProgramRecord::whereNull('deleted_at')->orderBy('start', 'desc')->get();
             } elseif (Auth::guard('teacher')->check()) {
                 $result = Auth::guard('teacher')->user();
-                $programList = ProgramRecord::where('upload_id', $result->id)->orderBy('start', 'asc')->get();
+                $programList = ProgramRecord::whereNull('deleted_at')->where('upload_id', $result->id)->orderBy('start', 'asc')->get();
             } else {
                 return Redirect::to('login')->with(['message' => 'You need to login first', 'class' => 'Warning']);
             }
         } catch (\Exception $e) {
             \Log::error('Dashboard fetch error: ' . $e->getMessage());
-            $dbError = 'DB Error: ' . $e->getMessage();
+            $dbError = 'DB Error: ' . $e->getMessage() . ' (' . $e->getFile() . ':' . $e->getLine() . ')';
         }
 
         return view('home')

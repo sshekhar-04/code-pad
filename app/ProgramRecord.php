@@ -3,12 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProgramRecord extends Model
 {
-    use SoftDeletes;
-
     /**
      * Table name.
      *
@@ -28,14 +25,4 @@ class ProgramRecord extends Model
         'uploaded_by',
         'upload_id'
     ];
-
-    /**
-     * For Softdelete.
-     *
-     * @var boollen
-     */
-    protected $softDeletes = true;
-
-
-
 }
