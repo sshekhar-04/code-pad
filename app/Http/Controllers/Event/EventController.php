@@ -111,7 +111,7 @@ class EventController extends Controller
         date_default_timezone_set('Asia/Kolkata');
         $time = date("YmdHi", time());
         // return $start-$time;
-        if ($end - $start >= 100 && $start - $time >=0 ) {
+        if ($end > $start) {
             // Save to database
             $rec = new ProgramRecord;
             $rec->name = $record['name'];
@@ -150,14 +150,13 @@ class EventController extends Controller
         } else {
             $errors = new MessageBag(
                 [
-                'startdate' => ['Event must be start before the end time'],
-                'enddate' => ['Event must be end after the start time']
+                'startdate' => ['Event must start before the end time'],
+                'enddate' => ['Event must end after the start time']
                 ]
             );
             return Redirect::back()->withErrors($errors)->withInput()->with(
                 [
-                'message' => 'Enter correct time,
-                    Event must be started after 24 hours from now',
+                'message' => 'End time must be after start time',
                 'class' => 'Warning'
                 ]
             );
@@ -285,7 +284,7 @@ class EventController extends Controller
         $time = date("YmdHi", time());
         // return $start-$time;
 
-        if ($end-$start >= 100 && $start-$time >=0) {
+        if ($end > $start) {
             // Save to database
             $rec->name=$record['name'];
             $rec->description=$record['description'];
@@ -311,14 +310,13 @@ class EventController extends Controller
         } else {
             $errors=new MessageBag(
                 [
-                'startdate' => ['Event must be start before the end time'],
-                'enddate' => ['Event must be end after the start time']
+                'startdate' => ['Event must start before the end time'],
+                'enddate' => ['Event must end after the start time']
                 ]
             );
             return Redirect::back()->withErrors($errors)->withInput()->with(
                 [
-                'message' => 'Enter correct time,
-                     Event must be started after 24 hours from now',
+                'message' => 'End time must be after start time',
                 'class' => 'Warning'
                 ]
             );
